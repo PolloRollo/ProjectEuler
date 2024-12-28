@@ -257,7 +257,6 @@ def problem_013(n=10):
         nums = [int(line.strip(",\n")) for line in file]
     sum_nums = sum(nums)
     digits = str(sum_nums)[:n]
-    print(digits)
     return digits
 
 
@@ -858,7 +857,6 @@ def problem_043(n=10):
                 break
         if works:
             total_sum += int(str_p)
-    print(total_sum)
     return total_sum
 
 
@@ -1133,11 +1131,12 @@ def problem_053(n=100):
     return count
 
 
-def problem_054():
+def wip_problem_054():
     """
     How many poker hands does Player 1 win?
     """
     print()
+    return 0
 
 
 def problem_055(n=10000):
@@ -1171,7 +1170,6 @@ def problem_056(n=100):
             digit_sum = sum([int(i) for i in str(num)])
             if digit_sum > max_digit_sum:
                 max_digit_sum = digit_sum
-    print(max_digit_sum)
     return max_digit_sum
 
 
@@ -1197,7 +1195,6 @@ def problem_058(p=1, q=10):
         if is_prime(c):
             primes += 1
     side_length = 2 * layer + 1
-    print(side_length)
     return side_length
 
 
@@ -1229,7 +1226,6 @@ def problem_060(n=5):
                 G.add_edge(primes[p1], primes[p2])
     n_clique_sum = [sum(c) for c in nx.find_cliques(G) if len(c) == n]
     least_sum = min(n_clique_sum)
-    print(least_sum)
     return least_sum
 
 
@@ -1243,7 +1239,6 @@ def problem_063():
         for j in range(2, 50):
             if len(str(i**j)) == j:
                 count += 1
-    print(count)
     return count
 
 
@@ -1377,7 +1372,6 @@ def problem_092(n=10**7):
                     for x in x_list:
                         n_dict[x] = False
                 break
-    print(count)
     return count
 
 
@@ -1409,7 +1403,6 @@ def problem_096():
         puzzle_sum = solved[0][0] * 100 + solved[0][1] * 10 + solved[0][2]
         digit_sum += puzzle_sum
         i += 1
-    print(digit_sum)
     return digit_sum
 
 
@@ -1514,7 +1507,6 @@ def problem_097(n=10):
     num = 2**7830457 % 10**n
     num *= 28433
     num = (num + 1) % 10**n
-    print(num)
     return num
 
 
@@ -1726,7 +1718,7 @@ def problem_243(p=15499, q=94744):
     return num
 
 
-def problem_500(n=500500):
+def wip_problem_500(n=500500):
     """
     Find the smallest number with 2**n factors
     """
@@ -1749,7 +1741,7 @@ def problem_500(n=500500):
     return x
 
 
-def problem_700():
+def wip_problem_700():
     """
     Consider x = an % b. x is in X if smaller than all previous x. Find the sum of all X.
     """
@@ -1769,7 +1761,7 @@ def problem_700():
     return sum_euler
 
 
-def problem_719(n=10**6):
+def wip_problem_719(n=10**6):
     """
     We define an S-number to be a perfect square and its square root can be obtained
      by splitting the decimal representation into 2 or more numbers then adding the numbers.
@@ -1801,7 +1793,7 @@ def problem_719(n=10**6):
     print(s_sum)
 
 
-def problem_719_a(n=10**6):
+def wip_problem_719_a(n=10**6):
     """
     We define an S-number to be a perfect square and its square root can be obtained
      by splitting the decimal representation into 2 or more numbers then adding the numbers.
@@ -1849,7 +1841,6 @@ def problem_751(n=24):
             b.append(b_n)
             a.append(floor(b_n))
         theta = str(a[0]) + "." + "".join([str(i) for i in a[1:]])
-    print(theta[:n+2])
     return theta
 
 
@@ -1869,7 +1860,6 @@ def problem_808(n=50):
             if val != ps:
                 reversible.append(ps)
     reversible_sum = sum(reversible[:n])
-    print(reversible_sum)
     return reversible_sum
 
 
@@ -1907,8 +1897,7 @@ def problem_816(n=2000000):
                     if x*x + y*y < min_dist:
                         # print("NEW MIN", x*x + y*y)
                         min_dist = x*x + y*y
-    print(min_dist)
-    print(sqrt(min_dist))
+    return sqrt(min_dist)
 
 
 def wip_problem_837(m, n, mod=100):

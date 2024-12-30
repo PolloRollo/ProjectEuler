@@ -9,7 +9,7 @@ def main():
     for function in functions_list:
         if function[0][:7] == "problem":
             functions[function[0]] = function[1]
-    file = "log.txt"
+    file = "log_2.txt"
     log = ""
     T = time.process_time()
     for name, function in functions.items():

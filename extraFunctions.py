@@ -85,7 +85,7 @@ def totient_b(n):
 
 def is_prime(p, k=40):
     """
-    Probabilistic method returns whether p is prime or not using Miller-Rabin.
+    Probabilistic method returns whether p is prime or not. Uses Miller-Rabin test.
     Conducts k tests, with 40 being optimal
     """
     # Composite if even

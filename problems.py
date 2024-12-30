@@ -823,19 +823,20 @@ def problem_040(n=6):
     for i in range(n+1):
         product *= int(champernowne[10**i-1])
     return product
+        
 
-
-def wip_problem_041(n=8):
+def problem_041(n=8):
     """
     What is the largest n-digit pandigital prime that exists?  (Eg. 2143)
     """
-    # No 9 digit pandigitals because all are divisible by 3
-    primes = primeSieve(10**n)
-    for i in range(len(primes) - 1, -1, -1):
-        prime = list(str(primes[i]))
-        p_len = len(prime)
-        if len(prime) == len(set(prime) & set([str(_) for _ in range(1, p_len+1)])):
-            return primes[i]
+    # None with 9 or 10 digits because divisible by 3, None n>10 since only 10 digits.
+    # Iterate through all i-digit pandigitals, decrementing i to find the least such.
+    for i in range(n, 1, -1):
+        pandigitals = list(itertools.permutations([str(_) for _ in range(i, 0, -1)]))
+        for p in pandigitals:
+            int_p = int("".join(p))
+            if is_prime(int_p):
+                return int_p
 
 
 def problem_042():
@@ -995,33 +996,13 @@ def problem_050(n=1000000):
     Which prime, below n, can be written as the sum of the most consecutive primes
     """
     primes = primeSieve(n)
-    mostPrimes = 0
-    which_prime = 1
-    for p in range(len(primes)):
-        prime = primes[p]
-        for i in range(p):
-            consecutive = mostPrimes + 1
-            if mostPrimes * primes[i] > prime or sum(primes[i:i+mostPrimes]) > prime:
-                break
-            while sum(primes[i:i+consecutive]) < prime:
-                consecutive += 1
-            if sum(primes[i: i+consecutive]) == prime:
-                mostPrimes = consecutive
-                which_prime = prime
-    return which_prime
-
-
-def problem_050_a(n=1000000):
-    """
-    Which prime, below n, can be written as the sum of the most consecutive primes
-    """
-    primes = primeSieve(n)
     primeSet = set(primes)
 
     most_primes = 0
     which_prime = 1
 
     for i in range(len(primes)-1):
+        # Only check lengths longer than largest consecutive
         j = most_primes + 1
         prime_sum = sum(primes[i:i+j])
         while prime_sum < n:
@@ -1107,10 +1088,14 @@ def problem_053(n=100):
     """
     threshold = 10**6
     count = 0
+    # Count twice due to symmetry
     for i in range(n+1):
-        for j in range(i+1):
+        for j in range(i//2):
             if comb(i, j) > threshold:
-                count += 1
+                count += 2
+    for i in range(0, n+1, 2):
+        if comb(i, i//2) > threshold:
+            count += 1
     return count
 
 
@@ -1167,7 +1152,7 @@ def problem_058(p=1, q=10):
     while primes * q >= p * total or total == 1:
         layer += 1
         total += 4
-        # Non-square values alon the diagonals
+        # Non-square values along the diagonals
         a = (4 * layer * layer) - (2 * layer) + 1
         b = (4 * layer * layer) + 1
         c = (4 * layer * layer) + (2 * layer) + 1
@@ -1181,7 +1166,7 @@ def problem_058(p=1, q=10):
     return side_length
 
 
-def problem_059():
+def wip_problem_059():
     """
     XOR cipher
     """
@@ -1200,17 +1185,24 @@ def problem_060(n=5):
     Find the lowest sum for a set of n primes for which any two primes concatenate to produce another prime.
     """
     G = nx.Graph()
-    primes = primeSieve(10000)
+    primes = primeSieve(10000)  # Can I remove this dependence on N?
     for p1 in range(1, len(primes)):
         for p2 in range(p1):
-            concat1 = primes[p1] * 10 ** ceil(log(primes[p2], 10)) + primes[p2]
-            concat2 = primes[p1] + primes[p2] * 10 ** ceil(log(primes[p1], 10))
+            concat1 = primes[p1] * 10 ** len(str(primes[p2])) + primes[p2]
+            concat2 = primes[p1] + primes[p2] * 10 ** len(str(primes[p1]))
             if is_prime(concat1) and is_prime(concat2):
                 G.add_edge(primes[p1], primes[p2])
     n_clique_sum = [sum(c) for c in nx.find_cliques(G) if len(c) == n]
     least_sum = min(n_clique_sum)
     return least_sum
 
+"""
+for problem in [problem_060]:
+    t = time.process_time()
+    problem()
+    time_elapsed = time.process_time() - t
+    print(time_elapsed)
+"""
 
 def problem_063():
     """
@@ -1271,11 +1263,12 @@ def problem_069(n=10**6):
     """
     Find the value of i < n for which n/phi(i) is a maximum.
     """
+    # phi(n) is minimized at primorial values
     phi = 1
-    primes = primeSieve(n)
+    primes = primeSieve(ceil(sqrt(n)))
     num = 1
     i = 0
-    # n/ phi(n) i maximized at the largest primorial < n
+    # so n/ phi(n) is maximized at the largest primorial < n.
     while num*primes[i] < n:
         num *= primes[i]
         phi *= primes[i]-1
@@ -1347,13 +1340,10 @@ def problem_092(n=10**7):
         while True:
             x_list.append(sum([digit_dict[d] for d in str(x_list[-1])]))
             if x_list[-1] in n_dict:
-                if n_dict[x_list[-1]]:
-                    count += 1
-                    for x in x_list:
-                        n_dict[x] = True
-                else:
-                    for x in x_list:
-                        n_dict[x] = False
+                to_89 = n_dict[x_list[-1]]
+                count += int(to_89)
+                for x in x_list:
+                    n_dict[x] = to_89
                 break
     return count
 
@@ -1827,7 +1817,7 @@ def problem_751(n=24):
     return theta
 
 
-def problem_808(n=50):
+def wip_problem_808(n=50):
     """
     Return the sum of the first n reversible prime squares
     """

@@ -5,16 +5,24 @@ from gmpy2 import mpz
 import networkx as nx
 import itertools
 import os
+import time
 
 
 def problem_001(n=1000):
     """
     Find the sum of all the multiples of 3 or 5 below n.
     """
-    threes = {i for i in range(0, n, 3)}
-    fives = {i for i in range(0, n, 5)}
-    both = threes | fives
-    return sum(both)
+    def triangle(n):
+        # Sum of 0 to n is given by
+        return (n * n + n)//2
+    # How many multiples of 3 are there? We can then factor the sum to
+    # 3 + 6 + 9 ... = 3 (1 + 2 + ... ) using Triangle
+    n_3 = n//3  
+    n_5 = n//5  
+    n_15 = n//15  
+    # Sum the 3s and 5s, subtract what we double count
+    fizz_buzz_sum = triangle(n_3) + triangle(n_5) - triangle(n_15)
+    return fizz_buzz_sum
 
 
 def problem_002(n=4000000):
@@ -27,6 +35,8 @@ def problem_002(n=4000000):
     while testVal <= n:
         fib.append(testVal)
         testVal = fib[-1] + fib[-2]
+    # F_n is even when n%3==0 
+    # Proof: Consider F_n % 2: [0, 1, 1, 0, 1, 1 ...]
     evenSum = 0
     for i in range(0, len(fib), 3):
         evenSum += fib[i]
@@ -36,24 +46,24 @@ def problem_002(n=4000000):
 def problem_003(n=600851475143):
     """
     What is the largest prime factor of the n?
+    FAST FOR HIGHLY COMPOSITE N
     """
-    testVal = 1000000
-    primes = primeSieve(testVal)
-    maxPrime = 1
-    for p in primes:
-        if n % p == 0:
-            n = n//p
-            maxPrime = p
-    return maxPrime
-
-
-def problem_003_a(n=600851475143):
-    """
-    What is the largest prime factor of the n?
-    FASTER FOR HIGHLY COMPOSITE N
-    """
+    # Iteratively divide by 2
     while n % 2 == 0:
         n = n//2
+    if n == 1:
+        return 2
+    """
+    # Naive implementation likely fastest -- tested for values in (1,000,000 to 1,005,000)
+    # Alternative methods: Bit Shifting
+    while n & 1 == 0:  # Check if the least significant bit is 0
+        n >>= 1
+    
+    # Alternative methods: Stripping trailing zeros
+    b = str(bin(n))
+    n = int(b.rstrip("0"), 2)
+    """
+    # Iterate through odd numbers, largest divisor is largest prime factor.
     p = 1
     while n != 1:
         p += 2
@@ -75,6 +85,15 @@ def problem_004(n=3):
             if x > maxPalindrome and isPalindrome(x):
                 maxPalindrome = x
     return maxPalindrome
+
+"""
+for problem in [problem_004]:
+    t = time.process_time()
+    for i in range(1, 5):
+        problem(i)
+    time_elapsed = time.process_time() - t
+    print(time_elapsed)
+"""
 
 
 def problem_005(n=20):
@@ -911,45 +930,8 @@ def problem_047(k=4, N=200000):
     """
     Find the first k consecutive integers to have k distinct prime factors each.
     Return the first of these numbers.
-
-    original
-    100K: 2.9712419509887695
-    200K: 8.93280291557312
-    400K: 19.207420825958252
-
-    alternate
-    100K: 0.03905177116394043
-    200K: 0.0676419734954834
-    400K: 0.11108565330505371
-    """
-    # Modified prime sieve to count factors
-    z = [False, False]
-    factors = [0, 0]
-    z.extend([True for _ in range(N-1)])
-    factors.extend([0 for _ in range(N-1)])
-    for prime in range(len(z)):
-        if z[prime]:
-            for i in range(prime, len(z), prime):
-                z[i] = False
-                factors[i] += 1
-    k_factors = [i for i in range(len(factors)) if factors[i] == k]
-    least_k_streak = 0
-    for num in k_factors:
-        streak = True
-        for i in range(1, k):
-            if num + i not in k_factors:
-                streak = False
-                break
-        if streak:
-            least_k_streak = num
-            break
-    return least_k_streak
-
-
-def problem_047_a(k=4, N=200000):
-    """
-    Find the first k consecutive integers to have k distinct prime factors each.
-    Return the first of these numbers.
+    
+    Can I remove the dependence on N?
     """
     # Modified prime sieve to count factors
     factors = [0, 0]
@@ -960,6 +942,7 @@ def problem_047_a(k=4, N=200000):
         if factors[prime] == 1:
             for i in range(2*prime, len(factors), prime):
                 factors[i] += 1
+        # Find first instance of k-streak
         elif factors[prime] == k + 1:
             k_factors.add(prime)
             streak = True

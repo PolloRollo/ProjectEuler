@@ -1,6 +1,7 @@
 import problems
 import time
 from inspect import getmembers, isfunction
+import os
 
 def main():
     functions_list = getmembers(problems, isfunction)
@@ -8,13 +9,24 @@ def main():
     for function in functions_list:
         if function[0][:7] == "problem":
             functions[function[0]] = function[1]
-
+    file = "log.txt"
+    log = ""
+    T = time.process_time()
     for name, function in functions.items():
-        time_start = time.time()
+        t = time.process_time()
         answer = function()
-        time_end = time.time()
-        time_total = time_end - time_start
-        print(f"{name}\n\t Time: {time_total}\n\t Answer: {answer}")
+        time_elapsed = time.process_time() - t
+        text = f"{name}\n\t Time: {time_elapsed}\n\t Answer: {answer}\n"
+        log += text
+        print(text)
+    total_time_elapsed = time.process_time() - T
+    print(f"Total time: {total_time_elapsed}")
+
+    # Record results
+    f = os.open(file, os.O_WRONLY)
+    os.write(f, log.encode())
+    os.close(f)
+
 
 main()
 

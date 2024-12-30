@@ -33,7 +33,7 @@ def timeTest(f, n):
 def isPalindrome(s):
     S = str(s)
     palindrome = True
-    for i in range(len(S)):
+    for i in range(len(S)//2):
         if S[i] != S[-i-1]:
             palindrome = False
     return palindrome

@@ -1041,12 +1041,76 @@ def problem_053(n=100):
     return count
 
 
-def wip_problem_054():
+def problem_054():
     """
     How many poker hands does Player 1 win?
     """
-    print()
-    return 0
+    # Read file
+    filename = "data/0054_poker.txt"
+    with open(filename) as file:
+        poker_rounds = [line.split(" ") for line in file]
+    p1_wins = 0
+    for round in poker_rounds:
+        p1 = round[:5]  # Five cards in each hand
+        p2 = round[-5:]
+        # Helper function to determine "value" of each hand
+        p1_score = poker_hand(p1)
+        p2_score = poker_hand(p2)
+        print(p1_score, p2_score)
+        # Compare results from each hand
+        if p1_score > p2_score:
+            p1_wins += 1
+    return p1_wins
+
+
+def poker_hand(cards):
+    # Determine card values
+    values = {"23456789TJQKA"[i]: i for i in range(13)}
+    nums = [0 for _ in range(13)]
+    for card in cards:
+        nums[values[card[0]]] += 1
+
+    # Encode score [xx][xx]: First set win style, second tie-breaker
+    # Score defaults to High Card
+    score = max([values[card[0]] for card in cards]) + 2
+
+    # Find pairs
+    pairs = []
+    triple = []
+    four = []
+    for i in range(len(nums)):
+        if nums[i] == 2:
+            pairs.append(i+2)
+            score = i + 2
+        elif nums[i] == 3:
+            triple.append(i+2)
+            score = i + 2
+        elif nums[4] == 4:
+            four.append(i+2)
+            score = i + 2
+    
+    # Find straights
+    straight = "11111" in  "".join([str(i) for i in nums])
+
+    # Find flushes
+    suits = [card[1] for card in cards]
+    flush = len(set(suits)) == 1
+
+    if flush:
+        score += 400
+    if straight:
+        score += 500
+    if len(four) > 0:
+        score += 700
+    if len(triple) > 0 and len(pairs) > 0:
+        score += 600
+    if len(triple) > 0:
+        score += 300
+    if len(pairs) == 2:
+        score += 200
+    if len(pairs) == 1:
+        score += 100
+    return score
 
 
 def problem_055(n=10000):
@@ -1425,28 +1489,7 @@ def problem_097(n=10):
     return num
 
 
-def problem_100(n=10**12):
-    """
-    Find the first arrangement to contain over n balls in total, such that
-    choosing two without replacement gives 50% probability of the dominant color.
-    Return how many of the dominant color.
-    """
-    dominant = 1
-    total = 1
-    slope_approx = [[1, 2]]  # Fractional approximations to 1 - sqrt(2)
-    i = 0
-    while total < n:  # Vieta jumping through positive hyperbolic solutions
-        a = slope_approx[-1][0]
-        b = slope_approx[-1][1]
-        slope_approx.append([b, a + 2*b])
-        if i % 2 == 0:
-            dominant += b
-            total += a + b
-        i += 1
-    return slope_approx[-1][0]
-
-
-def problem_100_a(p=1, q=2, n=10**12):
+def problem_100(n=10**12, p=1, q=2):
     """
     Find the first arrangement to contain over n balls in total, such that
     choosing two without replacement gives p/q probability of the dominant color.

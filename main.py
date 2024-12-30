@@ -20,7 +20,9 @@ def main():
         log += text
         print(text)
     total_time_elapsed = time.process_time() - T
-    print(f"Total time: {total_time_elapsed}")
+    text = f"Total time: {total_time_elapsed}"
+    log += text
+    print(text)
 
     # Record results
     f = os.open(file, os.O_WRONLY)
@@ -36,6 +38,6 @@ def time_test():
         print(time_elapsed)
 
 
-# main()
-time_test()
+main()
+# time_test()
 

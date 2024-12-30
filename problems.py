@@ -86,15 +86,6 @@ def problem_004(n=3):
                 maxPalindrome = x
     return maxPalindrome
 
-"""
-for problem in [problem_004]:
-    t = time.process_time()
-    for i in range(1, 5):
-        problem(i)
-    time_elapsed = time.process_time() - t
-    print(time_elapsed)
-"""
-
 
 def problem_005(n=20):
     """
@@ -814,14 +805,17 @@ def problem_040(n=6):
     If d_n represents the nth digit of the fractional part, find the value of the following expression.
     d_1 x d_10 x ... x d_10**n
     """
-    champernowne = ""
+    champernowne = "".join([str(i) for i in range(1, 10**n)])
+    print(len(champernowne))
+    """
     i = 1
     while len(champernowne) < 10**n:
         champernowne += str(i)
         i += 1
+    """
     product = 1
     for i in range(n+1):
-        product *= int(champernowne[10**i-1])
+        product *= int(champernowne[(10**i)-1])
     return product
         
 

@@ -1332,6 +1332,34 @@ def problem_081():
     return min_val
 
 
+def wip_problem_089():
+    """
+    Find the number of characters saved by writing each roman numeral in its minimal form.
+    """
+    filename = "data/0089_roman.txt"
+    with open(filename) as file:
+        romans = [line.strip() for line in file]
+    chars_removed = 0
+    for roman in romans:
+        # Resolve 1's place
+        if "VIIII" in roman:
+            chars_removed += 3
+        elif "IIII" in roman:
+            chars_removed += 2
+        # Resolve 10's place
+        if "LXXXX" in roman:
+            chars_removed += 3
+        elif "XXXX" in roman:
+            chars_removed += 2
+        # Resolve 100's place
+        if "DCCCC" in roman:
+            chars_removed += 3
+        elif "CCCC" in roman:
+            chars_removed += 2
+    return chars_removed
+
+print(wip_problem_089())
+
 def problem_092(n=10**7):
     """
     The next term in a sequence is the sum of the digits squared.

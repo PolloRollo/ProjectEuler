@@ -1246,6 +1246,30 @@ def problem_064(n=10000):
     return odd_count
 
 
+def wip_problem_065(n=100):
+    """
+    Find the sum of digits in the numerator of the n-th convergent of the continued fraction for e.
+    """
+    # Build continued fraction representation
+    val = 2
+    e_cont_frac = [2]
+    for _ in range(n//3 + 1):
+        e_cont_frac.extend([1, val, 1])
+        val += 2
+    # Compute numerator and denominators
+    numerator = 1
+    denominator = e_cont_frac[n-1]
+    for i in range(n-2, -1, -1):
+        new_numerator = e_cont_frac[i] * denominator + numerator
+        numerator = denominator
+        denominator = new_numerator
+    # Undo the final switch
+    numerator, denominator = denominator, numerator
+    return sum([int(i) for i in str(numerator)])
+
+for i in range(100):
+    print(i+1, wip_problem_065(i+1))
+
 def problem_067():
     """
     Find the maximum total from top to bottom of the triangle below
@@ -1332,7 +1356,7 @@ def problem_081():
     return min_val
 
 
-def wip_problem_089():
+def problem_089():
     """
     Find the number of characters saved by writing each roman numeral in its minimal form.
     """
@@ -1341,30 +1365,28 @@ def wip_problem_089():
         romans = [line.strip() for line in file]
     chars_removed = 0
     for roman in romans:
-        # Resolve 1's place
+        # Resolve 1's place: IIII -> IV or VIIII -> IX
         if "VIIII" in roman:
             chars_removed += 3
         elif "IIII" in roman:
             chars_removed += 2
-        # Resolve 10's place
+        # Resolve 10's place: XXXX -> XL or LXXXX -> XC
         if "LXXXX" in roman:
             chars_removed += 3
         elif "XXXX" in roman:
             chars_removed += 2
-        # Resolve 100's place
+        # Resolve 100's place: CCCC -> CD or DCCCC -> CM
         if "DCCCC" in roman:
             chars_removed += 3
         elif "CCCC" in roman:
             chars_removed += 2
     return chars_removed
 
-print(wip_problem_089())
 
 def problem_092(n=10**7):
     """
     The next term in a sequence is the sum of the digits squared.
-    How many below n lead to 89?
-    (Supposedly all starting values end in 1 or 89)
+    How many below n lead to 89? (All starting values end in 1 or 89)
     """
     count = 0
     n_dict = {1: False, 89: True}  # Use Union find-esque algorithm. All numbers which lead to 89 are True

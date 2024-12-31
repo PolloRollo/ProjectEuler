@@ -1246,7 +1246,7 @@ def problem_064(n=10000):
     return odd_count
 
 
-def wip_problem_065(n=100):
+def problem_065(n=100):
     """
     Find the sum of digits in the numerator of the n-th convergent of the continued fraction for e.
     """
@@ -1256,7 +1256,7 @@ def wip_problem_065(n=100):
     for _ in range(n//3 + 1):
         e_cont_frac.extend([1, val, 1])
         val += 2
-    # Compute numerator and denominators
+    # Cascade up the continued fraction
     numerator = 1
     denominator = e_cont_frac[n-1]
     for i in range(n-2, -1, -1):
@@ -1267,8 +1267,6 @@ def wip_problem_065(n=100):
     numerator, denominator = denominator, numerator
     return sum([int(i) for i in str(numerator)])
 
-for i in range(100):
-    print(i+1, wip_problem_065(i+1))
 
 def problem_067():
     """

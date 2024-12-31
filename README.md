@@ -2,5 +2,5 @@
 
 Problems are found on projecteuler.net
 
-Status 82/925
+Status 85/925
 Total time: 43 seconds

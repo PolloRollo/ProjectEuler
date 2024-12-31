@@ -1172,18 +1172,29 @@ def problem_058(p=1, q=10):
     return side_length
 
 
-def wip_problem_059():
+def problem_059():
     """
     XOR cipher
     """
+    # Read data
     filename = "data/0059_cipher.txt"
-    message = []
+    words = []
     with open(filename) as file:
-        words = [line.split(",") for line in file]
-        for i in range(len(words[0])):
-            message.append(int(words[0][i]))
-
-    # iterate through three lowercase characters
+        for line in file:
+            words.extend(line.split(","))
+        words = [int(words[i]) for i in range(len(words))]
+    # Iterate through three lowercase characters
+    alphabet = "abcdefghijklmnopqrstuvwxyz"
+    message_sum = 0
+    for key in itertools.product(alphabet, repeat=3):
+        decode = [chr(words[i] ^ ord(key[i % 3])) for i in range(len(words))]
+        message = "".join(decode)
+        # Filter possible messages by common English phrases
+        if "the " in message and "and " in message:
+            for c in decode:
+                message_sum += ord(c)
+            break
+    return message_sum
 
 
 def problem_060(n=5):
@@ -1202,13 +1213,6 @@ def problem_060(n=5):
     least_sum = min(n_clique_sum)
     return least_sum
 
-"""
-for problem in [problem_060]:
-    t = time.process_time()
-    problem()
-    time_elapsed = time.process_time() - t
-    print(time_elapsed)
-"""
 
 def problem_063():
     """

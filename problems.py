@@ -1147,6 +1147,21 @@ def problem_056(n=100):
     return max_digit_sum
 
 
+def problem_057(n=1000):
+    """
+    In the first n expansions continued fraction expansions of sqrt(2),
+    how many fractions contain a numerator with more digits than the denominator?
+    """
+    numerator = 1
+    denominator = 2
+    longer_count = 0
+    for i in range(0, n):
+        if len(str(denominator + numerator)) > len(str(denominator)):
+            longer_count += 1
+        numerator, denominator = denominator, 2 * denominator + numerator
+    return longer_count
+
+
 def problem_058(p=1, q=10):
     """
     How large must an Ulam sprial be for the percentage of 

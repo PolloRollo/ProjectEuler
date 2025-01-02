@@ -1095,20 +1095,19 @@ def poker_hand(cards):
     # Find flushes
     suits = [card[1] for card in cards]
     flush = len(set(suits)) == 1
-
-    if flush:
-        score += 400
     if straight:
         score += 500
+    if flush:
+        score += 400
     if len(four) > 0:
         score += 700
-    if len(triple) > 0 and len(pairs) > 0:
+    if len(triple) > 0 and len(pairs) > 0:  
         score += 600
-    if len(triple) > 0:
+    elif len(triple) > 0:
         score += 300
-    if len(pairs) == 2:
+    elif len(pairs) == 2:
         score += 200
-    if len(pairs) == 1:
+    elif len(pairs) == 1:
         score += 100
     return score
 
@@ -1625,19 +1624,35 @@ def wip_problem_104():
     return i
 
 
-def wip_problem_111(n):
+def wip_problem_111(n=10):
     """
     Given a integer length, n, determine the maximum number of each digit, 0-9, while still a prime.
     Return the sum of the primes with these maximal digit repeats.
     """
-    # For digit in range(0, 10):
-    # work through how many digits could appear
-    # if that digits sum is not zero, add to the total
-    # iterate through different choose functions where the non-digit values are
     totalSum = 0
-    for digit in range(0, 10):
-        num = digit * n
-    print()
+    digits = "0123456789"
+    # Iterate through all digits
+    for digit in digits:
+        max_repeat = False
+        off_digit_count = 1
+        # Find the most digit repeats for length n
+        while not max_repeat:
+            # Fill in the extra numbers with any "off_digit_count" sequence
+            # Find every combination of indices that can be replaced
+            x = digit * n
+            for i in itertools.product(digits, repeat = off_digit_count):
+                for j in itertools.combinations(digits[:n], off_digit_count):
+                    val = list(x)
+                    for k in range(len(j)):
+                        val[int(j[k])] = i[k]
+                    if val[0] == "0":
+                        continue
+                    num = int("".join(val))
+                    if is_prime(num):
+                        max_repeat = True
+                        totalSum += num
+            off_digit_count += 1
+    return totalSum
 
 
 def problem_112(p=99, q=100):

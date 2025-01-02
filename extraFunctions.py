@@ -91,7 +91,9 @@ def is_prime(p, k=40):
     # Composite if even
     if p == 2 or p == 3:
         return True
-    if p % 2 == 0:
+    elif p % 2 == 0:
+        return False
+    elif p == 1:
         return False
     # Miller-Rabin
     r, s = 0, p - 1

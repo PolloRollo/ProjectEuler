@@ -1,5 +1,5 @@
 # Project Euler Code
-from extraFunctions import primeSieve, EuclideanAlg, timeTest, isPalindrome, divisor_count, is_prime
+from extraFunctions import primeSieve, EuclideanAlg, timeTest, isPalindrome, divisor_count, is_prime, is_pandigital
 from math import log, ceil, comb, factorial, sqrt, floor, gcd
 from gmpy2 import mpz
 import networkx as nx
@@ -1602,26 +1602,34 @@ def problem_101(n=11):
     return sum(wrong)
 
 
-def wip_problem_104():
+def problem_104():
     """
     Given that F_k is the first Fibonacci number for which the first nine digits AND the last nine digits
     are 1-9 pandigital, find k.
     """
+    # Solve for inital digits of high powers 
+    def mypow( x, n ):
+        res=1.0
+        for _ in range(n):
+            res *= x
+            if res>1E20: res*=1E-10  # truncation to avoid overflow:
+        return res
+    # Determine when the last 9 digits are pandigital
+    SQRT_5 = sqrt(5)
+    MOD = 10**9 # Only last 9 digits
     fib_a = 0
     fib_b = 1
-    zero = {'0'}
-    i = 2
+    i = 1
     while True:
-        fib_a, fib_b = fib_b, fib_a + fib_b
-        r = mpz(fib_b)
-        str_fib = r.digits()
-        front = set(str_fib[:9])
-        back = set(str_fib[-9:])
-        if len(front) == 9 and len(front & zero) == 0:
-            if len(back) == 9 and len(back & zero) == 0:
-                break
+        fib_a, fib_b = fib_b, (fib_a + fib_b) % MOD
         i += 1
-    return i
+        if is_pandigital(str(fib_b)):
+            # Check the first 9 digits using Binet approximation
+            # https://en.wikipedia.org/wiki/Fibonacci_sequence#Computation_by_rounding
+            F = mypow( (1+SQRT_5)/2, i )/SQRT_5
+            s = '%f' % F
+            if is_pandigital(s[:9]):
+                return i
 
 
 def wip_problem_111(n=10):

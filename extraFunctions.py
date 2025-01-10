@@ -114,6 +114,10 @@ def is_prime(p, k=40):
     return True
 
 
+def is_pandigital(s, digits="123456789"):
+    return set(s) == set(digits)
+
+
 def wieferich(n):
     primes = primeSieve(n)
     w = []

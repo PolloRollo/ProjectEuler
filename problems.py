@@ -2033,82 +2033,87 @@ def wip_problem_927(N=10**3):
 # Not 146651476
 # Not 32396400
     
-def wip_problem_928_a():
+def wip_problem_928_a(N=13):
     """
     Find the number of Hands in a normal pack of cards where the Hand score is equal to the Cribbage score.
     Hand score: Sum of card values (Ace=1, J,Q,K = 10)
     Cribbage score: Pairs (2), Runs (Length), 15s (2)
+    Faster, but still too slow (~5 min)
     """
     # Total number of hands (5^13, 0-4 of each card)
-    # [cards for range(13)]
-    def cribbage_score(hand):
-        score = 0
-        run_score = 0
-        run_len = 0
-        fifteen = [0 for _ in range(16)]
-        # Count fifeens
-        for card in range(len(hand)):
-            card_val = min(card + 1, 10)
-            for i in range(len(fifteen)+1, -1, -1):
-                count = 1
-                combo = hand[card]
-                while count <= hand[card] and card_val*count + i <= 15:
-                    combo = comb(hand[card], count)
-                    if i == 0:
-                        fifteen[(count * card_val) + i] += combo
-                    else:
-                        fifteen[(count * card_val) + i] += combo * fifteen[i]
-                    count += 1
-            # Count pairs
-            if hand[card] >= 2:
-                score += comb(hand[card], 2) * 2
-            # Count runs
-            if hand[card] >= 1:
-                if run_len == 0:
-                    run_score += hand[card]
-                else:
+    def recursion_928(hand, highest, hand_score, fifteen):
+        # Calculate the crib total
+        def cribbage_score(hand, new_card, old_fifteen):
+            score = 0
+            run_score = 1
+            run_len = 0
+            card_val = min(new_card, 10)
+            # Count fifeens
+            score += 2 * (old_fifteen[-1]) # + old_fifteen[15-card_val])
+            for card in range(len(hand)):
+                # Count pairs
+                if hand[card] >= 2:
+                    score += comb(hand[card], 2) * 2
+                # Count runs
+                if hand[card] >= 1:
                     run_score *= hand[card]
-                run_len += 1
-            else:
-                if run_len >= 3:
-                    score += run_score * run_len
-                run_len = 0
-                run_score = 0
-        score += 2 * fifteen[-1]
-        return score
-    
-    def hand_score(hand):
-        score = 0
-        for card in range(len(hand)):
-            score += hand[card] * (min(card + 1, 10))
-        return score
-    
-
+                    run_len += 1
+                if hand[card] == 0 or card == N-1:
+                    if run_len >= 3:
+                        score += run_score * run_len
+                    run_len = 0
+                    run_score = 1
+            return score
+        
+        equal_scores = 0
+        crib_score = cribbage_score(hand, highest, fifteen)
+        # Check for equality, calculate possible suite combinations
+        if hand_score == crib_score:
+            # print(hand, hand_score)
+            possible_suites = 1
+            for card in hand:
+                possible_suites *= comb(4, card)
+            equal_scores += possible_suites
+        elif crib_score > 220 or crib_score > hand_score + 50:
+            # Condition to stop adding cards, triggers when
+            # - Cribbage_score exceeds max hand_score (340), but all 220
+            # - Crib is significantly larger than hand_score  
+            #   (Max possible to add without increasing the crib [2, 4, 6, 8, 10, Q, K] = 50)
+            return equal_scores
+        
+        for i in range(highest):
+            # Update the fifteen knapsack
+            new_fifteen = [_ for _ in fifteen]
+            card_val = min(10, i+1)
+            for j in range(len(fifteen)-1, card_val-1, -1):
+                new_fifteen[j] += fifteen[j - card_val]
+            # Add another card to the hand
+            if hand[i] < 4:
+                new_hand = [_ for _ in hand]
+                new_hand[i] += 1
+                equal_scores += recursion_928(new_hand, i+1, hand_score + card_val, new_fifteen)
+        return equal_scores
 
     equal_scores = -1  # Remove the trivial (empty) case
-
-    # Too many possible hands (5^13) can this be filtered?
-    possible_hands = itertools.product([i for i in range(5)], repeat=13)
-    for hand in possible_hands:
-        if hand_score(hand) == cribbage_score(hand):
-            equal_scores += 1
-            if equal_scores % 1000 == 0:
-                print(equal_scores)
+    hand = [0 for _ in range(N)]  # Empty hand, no hand score
+    fifteen = [1 if i==0 else 0 for i in range(16)]
+    equal_scores += recursion_928(hand, N, 0, fifteen)
     print(equal_scores)
     return equal_scores
 
-def wip_problem_928_b():
+def wip_problem_928_b(N=13):
     """
     Find the number of Hands in a normal pack of cards where the Hand score is equal to the Cribbage score.
     Hand score: Sum of card values (Ace=1, J,Q,K = 10)
     Cribbage score: Pairs (2), Runs (Length), 15s (2)
+    Works But is too slow (25 min)
     """
     # Total number of hands (5^13, 0-4 of each card)
     def recursion_928(hand, highest, hand_score):
         # Calculate the crib total
         def cribbage_score(hand):
             score = 0
-            run_score = 0
+            run_score = 1
             run_len = 0
             fifteen = [0 for _ in range(16)]  # Dynamic programming array, count ways to sum to _
             # Count fifeens
@@ -2129,16 +2134,13 @@ def wip_problem_928_b():
                     score += comb(hand[card], 2) * 2
                 # Count runs
                 if hand[card] >= 1:
-                    if run_len == 0:
-                        run_score += hand[card]
-                    else:
-                        run_score *= hand[card]
+                    run_score *= hand[card]
                     run_len += 1
-                else:
+                if hand[card] == 0 or card == N-1:
                     if run_len >= 3:
                         score += run_score * run_len
                     run_len = 0
-                    run_score = 0
+                    run_score = 1
             score += 2 * fifteen[-1]
             return score
         
@@ -2146,16 +2148,16 @@ def wip_problem_928_b():
         cribbage_score = cribbage_score(hand)
         # Check for equality, calculate possible suite combinations
         if hand_score == cribbage_score:
-            print(hand)
+            # print(hand, hand_score)
             possible_suites = 1
             for card in hand:
                 possible_suites *= comb(4, card)
             equal_scores += possible_suites
-        # Condition to stop adding cards, triggers when
-        # - Cribbage_score exceeds max hand_score
-        # - Crib is significantly larger than hand_score 
-        #   (Max possible to add without increasing the crib [2, 4, 6, 8, 10, Q, K] = 50)
-        if cribbage_score > hand_score + 50 or cribbage_score > 340:
+        elif cribbage_score > 220 or cribbage_score > hand_score + 50:
+            # Condition to stop adding cards, triggers when
+            # - Cribbage_score exceeds max hand_score (340), but all 220
+            # - Crib is significantly larger than hand_score  
+            #   (Max possible to add without increasing the crib [2, 4, 6, 8, 10, Q, K] = 50)
             return equal_scores
         # Add another card to the hand
         for i in range(highest):
@@ -2166,9 +2168,9 @@ def wip_problem_928_b():
         return equal_scores
 
     equal_scores = -1  # Remove the trivial (empty) case
-    hand = [0 for _ in range(13)]  # Empty hand, no hand score
-    equal_scores += recursion_928(hand, 13, 0)
+    hand = [0 for _ in range(N)]  # Empty hand, no hand score
+    equal_scores += recursion_928(hand, N, 0)
     print(equal_scores)
     return equal_scores
 
-wip_problem_928_b()
+# wip_problem_928_b(8)

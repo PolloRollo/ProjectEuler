@@ -1,6 +1,7 @@
 # Project Euler Code
 from extraFunctions import primeSieve, EuclideanAlg, timeTest, isPalindrome, divisor_count, is_prime, is_pandigital
 from math import log, ceil, comb, factorial, sqrt, floor, gcd
+import numpy as np
 from gmpy2 import mpz
 import networkx as nx
 import itertools
@@ -1632,7 +1633,7 @@ def problem_104():
                 return i
 
 
-def wip_problem_111(n=10):
+def problem_111(n=10):
     """
     Given a integer length, n, determine the maximum number of each digit, 0-9, while still a prime.
     Return the sum of the primes with these maximal digit repeats.
@@ -1970,3 +1971,204 @@ def wip_problem_837(m, n, mod=100):
         return total
 
 
+def wip_problem_927(N=10**3):
+    """
+    Prime-ary Tree
+    """
+    # Find the number of full k-trees for each k
+    # Curiosities
+    # p=2: [1, 1+1, 2^2+1, 5^2+1, 26^2+1, 677^2+1]
+    # p=3: [1, 1+1, 2^3+1, 9^3+1, 730^3+1, ...]
+    # p=5: [1, 1+1, 2^5+1, 33^5+1, ]
+    def find_prime_divisors(p, primes):
+        prime_divisors = {1}
+        for p_2 in primes: 
+            a = 1
+            prev_a = set()
+            while True:
+                if a == 0:
+                    prime_divisors.add(p_2)
+                    break
+                elif a in prev_a:
+                    break
+                prev_a.add(a)
+                a = (mod_exp2(a, p, p_2) + 1) % p_2
+                # a = (a**p +1) % p_2
+        return prime_divisors
+    
+    def mod_exp2(base, exp, mod):
+        if exp == 0: return 1
+        if exp & 1 == 0:
+            r = mod_exp2(base, exp // 2, mod)
+            return (r * r) % mod
+        else: return (base % mod * mod_exp2(base, exp - 1, mod)) % mod
+        
+    primes = primeSieve(N)
+    prime_divisors = {1}
+    for p in primes:   # NOTE: Final filtering occurs fairly early, do we need to check every prime?
+        # print(f"{p}")
+        if p == 2:
+            prime_divisors = find_prime_divisors(p, primes)
+        else:
+            primes_to_check = list(prime_divisors)
+            prime_divisors &= find_prime_divisors(p, primes_to_check)
+    print(prime_divisors)
+    all_divisors = {1}
+    for i in prime_divisors:
+        multiples = set()
+        for j in all_divisors:
+            if i * j < N:
+                multiples.add(i * j)
+        all_divisors = all_divisors | multiples
+    print(sum(all_divisors))
+
+
+#wip_problem_927(N=10**6)
+# 20 -> 18
+# 10**3 -> 2089
+# 10**4 -> 20782
+# 10**5 -> 1269479
+# 10**6 -> 32396400
+# Not 13833456
+# Not 146651476
+# Not 32396400
+    
+def wip_problem_928_a():
+    """
+    Find the number of Hands in a normal pack of cards where the Hand score is equal to the Cribbage score.
+    Hand score: Sum of card values (Ace=1, J,Q,K = 10)
+    Cribbage score: Pairs (2), Runs (Length), 15s (2)
+    """
+    # Total number of hands (5^13, 0-4 of each card)
+    # [cards for range(13)]
+    def cribbage_score(hand):
+        score = 0
+        run_score = 0
+        run_len = 0
+        fifteen = [0 for _ in range(16)]
+        # Count fifeens
+        for card in range(len(hand)):
+            card_val = min(card + 1, 10)
+            for i in range(len(fifteen)+1, -1, -1):
+                count = 1
+                combo = hand[card]
+                while count <= hand[card] and card_val*count + i <= 15:
+                    combo = comb(hand[card], count)
+                    if i == 0:
+                        fifteen[(count * card_val) + i] += combo
+                    else:
+                        fifteen[(count * card_val) + i] += combo * fifteen[i]
+                    count += 1
+            # Count pairs
+            if hand[card] >= 2:
+                score += comb(hand[card], 2) * 2
+            # Count runs
+            if hand[card] >= 1:
+                if run_len == 0:
+                    run_score += hand[card]
+                else:
+                    run_score *= hand[card]
+                run_len += 1
+            else:
+                if run_len >= 3:
+                    score += run_score * run_len
+                run_len = 0
+                run_score = 0
+        score += 2 * fifteen[-1]
+        return score
+    
+    def hand_score(hand):
+        score = 0
+        for card in range(len(hand)):
+            score += hand[card] * (min(card + 1, 10))
+        return score
+    
+
+
+    equal_scores = -1  # Remove the trivial (empty) case
+
+    # Too many possible hands (5^13) can this be filtered?
+    possible_hands = itertools.product([i for i in range(5)], repeat=13)
+    for hand in possible_hands:
+        if hand_score(hand) == cribbage_score(hand):
+            equal_scores += 1
+            if equal_scores % 1000 == 0:
+                print(equal_scores)
+    print(equal_scores)
+    return equal_scores
+
+def wip_problem_928_b():
+    """
+    Find the number of Hands in a normal pack of cards where the Hand score is equal to the Cribbage score.
+    Hand score: Sum of card values (Ace=1, J,Q,K = 10)
+    Cribbage score: Pairs (2), Runs (Length), 15s (2)
+    """
+    # Total number of hands (5^13, 0-4 of each card)
+    def recursion_928(hand, highest, hand_score):
+        # Calculate the crib total
+        def cribbage_score(hand):
+            score = 0
+            run_score = 0
+            run_len = 0
+            fifteen = [0 for _ in range(16)]  # Dynamic programming array, count ways to sum to _
+            # Count fifeens
+            for card in range(len(hand)):
+                card_val = min(card + 1, 10)
+                for i in range(len(fifteen)+1, -1, -1):
+                    count = 1
+                    combo = hand[card]
+                    while count <= hand[card] and card_val*count + i <= 15:
+                        combo = comb(hand[card], count)
+                        if i == 0:
+                            fifteen[(count * card_val) + i] += combo
+                        else:
+                            fifteen[(count * card_val) + i] += combo * fifteen[i]
+                        count += 1
+                # Count pairs
+                if hand[card] >= 2:
+                    score += comb(hand[card], 2) * 2
+                # Count runs
+                if hand[card] >= 1:
+                    if run_len == 0:
+                        run_score += hand[card]
+                    else:
+                        run_score *= hand[card]
+                    run_len += 1
+                else:
+                    if run_len >= 3:
+                        score += run_score * run_len
+                    run_len = 0
+                    run_score = 0
+            score += 2 * fifteen[-1]
+            return score
+        
+        equal_scores = 0
+        cribbage_score = cribbage_score(hand)
+        # Check for equality, calculate possible suite combinations
+        if hand_score == cribbage_score:
+            print(hand)
+            possible_suites = 1
+            for card in hand:
+                possible_suites *= comb(4, card)
+            equal_scores += possible_suites
+        # Condition to stop adding cards, triggers when
+        # - Cribbage_score exceeds max hand_score
+        # - Crib is significantly larger than hand_score 
+        #   (Max possible to add without increasing the crib [2, 4, 6, 8, 10, Q, K] = 50)
+        if cribbage_score > hand_score + 50 or cribbage_score > 340:
+            return equal_scores
+        # Add another card to the hand
+        for i in range(highest):
+            if hand[i] < 4:
+                new_hand = [_ for _ in hand]
+                new_hand[i] += 1
+                equal_scores += recursion_928(new_hand, i+1, hand_score + min(i+1, 10))
+        return equal_scores
+
+    equal_scores = -1  # Remove the trivial (empty) case
+    hand = [0 for _ in range(13)]  # Empty hand, no hand score
+    equal_scores += recursion_928(hand, 13, 0)
+    print(equal_scores)
+    return equal_scores
+
+wip_problem_928_b()

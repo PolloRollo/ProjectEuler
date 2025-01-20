@@ -31,7 +31,7 @@ def main():
 
 
 def time_test():
-    for problem in [problems.wip_problem_104]:
+    for problem in [problems.wip_problem_928_b]:
         t = time.process_time()
         problem()
         time_elapsed = time.process_time() - t

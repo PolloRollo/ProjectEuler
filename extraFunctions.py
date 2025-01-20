@@ -127,8 +127,21 @@ def wieferich(n):
             w.append(p)
     print(w)
 
+def find_divisors(n, primes):
+    exponents = []
+    p_index = 0
+    while n != 1:
+        p = primes[p_index]
+        exponents.append(1)
+        while n % p == 0:
+            n = n//p
+            exponents[-1] += 1
+        p_index += 1
+    divisors = 1
+    for d in exponents:
+        divisors *= d
+    return divisors
 
-# wieferich(100000)
 
 """
 n = 10000

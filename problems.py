@@ -1229,6 +1229,65 @@ def problem_060(n=5):
     return least_sum
 
 
+def wip_problem_061(N=6):
+    """
+    Find a cycle of N 4-digit shaped numbers.
+    e.g 8128 (triangular), 2882 (pentagonal), 8281 (square)
+    """
+    # All shape formulas
+    def triangle(n): return n*(n+1)//2
+    def square(n): return n*n
+    def pentagon(n): return n*(3*n-1)//2
+    def hexagon(n): return n*(2*n-1)
+    def heptagon(n): return n*(5*n-3)//2
+    def octagon(n): return n*(3*n-2)
+
+    def recursion(values, checked, start, next, N):
+        for i in range(len(values)):
+            if checked[i]: continue  # Cannot reuse same shape
+            if next in values[i]:
+                new_checked = [_ for _ in checked]
+                new_checked[i] = True
+                if N == 1:
+                    if start in values[i][next]:
+                        return start + next
+                    else:
+                        return 0
+                for new_next in values[i][next]:
+                    total = recursion(values, new_checked, start, new_next, N-1)
+                if total > 0:
+                    return total + next
+        return 0
+            
+    shapes = [triangle, square, pentagon, hexagon, heptagon, octagon]
+    values = []
+    for shape in shapes[:N]:
+        shape_dict = {}
+        i = 0
+        num = 0
+        while True:
+            i += 1
+            num = shape(i)
+            if num//100 >= 100: break  # Number is too large
+            if num > 1000:
+                start = num // 100
+                end = num % 100
+                if end >= 10:
+                    if start in shape_dict:
+                        shape_dict[start].add(end)
+                    else:
+                        shape_dict[start] = {end}
+        values.append(shape_dict)
+    checked = [False for _ in range(N)]
+    checked[-1] = True
+    for start, end in values[-1].items():
+        for e in end:
+            total = recursion(values, checked, start, e, N-1)
+            if total > 0:
+                solution = (total*100) + total  # First and last digits are the same
+                return solution
+
+
 def problem_063():
     """
     How many positive n-digit numbers are nth powers?
@@ -2041,136 +2100,60 @@ def wip_problem_928_a(N=13):
     Faster, but still too slow (~5 min)
     """
     # Total number of hands (5^13, 0-4 of each card)
-    def recursion_928(hand, highest, hand_score, fifteen):
+    def recursion_928(hand, highest, hand_score, fifteen, pairs=0):
         # Calculate the crib total
-        def cribbage_score(hand, new_card, old_fifteen):
+        def cribbage_score(hand, new_card, fifteens, pairs):
             score = 0
             run_score = 1
             run_len = 0
-            card_val = min(new_card, 10)
-            # Count fifeens
-            score += 2 * (old_fifteen[-1]) # + old_fifteen[15-card_val])
             for card in range(len(hand)):
-                # Count pairs
-                if hand[card] >= 2:
-                    score += comb(hand[card], 2) * 2
                 # Count runs
-                if hand[card] >= 1:
-                    run_score *= hand[card]
-                    run_len += 1
                 if hand[card] == 0 or card == N-1:
                     if run_len >= 3:
                         score += run_score * run_len
                     run_len = 0
                     run_score = 1
-            return score
+                else:
+                    run_score *= hand[card]
+                    run_len += 1
+            return score + 2 * (fifteens + pairs)
         
         equal_scores = 0
-        crib_score = cribbage_score(hand, highest, fifteen)
+        crib_score = cribbage_score(hand, highest, fifteen[-1], pairs)
         # Check for equality, calculate possible suite combinations
         if hand_score == crib_score:
-            # print(hand, hand_score)
             possible_suites = 1
             for card in hand:
                 possible_suites *= comb(4, card)
             equal_scores += possible_suites
-        elif crib_score > 220 or crib_score > hand_score + 50:
-            # Condition to stop adding cards, triggers when
-            # - Cribbage_score exceeds max hand_score (340), but all 220
-            # - Crib is significantly larger than hand_score  
-            #   (Max possible to add without increasing the crib [2, 4, 6, 8, 10, Q, K] = 50)
+        # Condition to stop adding cards, triggers when
+        # - Crib_score > max hand_score (340), but 220 is impossible create without crib blowing up
+        # - Crib is significantly larger than hand_score
+        elif crib_score > 220 or crib_score > hand_score + 50: 
             return equal_scores
         
         for i in range(highest):
             # Update the fifteen knapsack
+            if hand[i] == 4:
+                continue
             new_fifteen = [_ for _ in fifteen]
             card_val = min(10, i+1)
             for j in range(len(fifteen)-1, card_val-1, -1):
                 new_fifteen[j] += fifteen[j - card_val]
+            # Update number of pairs
+            new_pairs = pairs + hand[i]
             # Add another card to the hand
-            if hand[i] < 4:
-                new_hand = [_ for _ in hand]
-                new_hand[i] += 1
-                equal_scores += recursion_928(new_hand, i+1, hand_score + card_val, new_fifteen)
+            new_hand = [_ for _ in hand]
+            new_hand[i] += 1
+            equal_scores += recursion_928(new_hand, i+1, hand_score + card_val, new_fifteen, new_pairs)
         return equal_scores
 
+    # Initialize the recursive solver
     equal_scores = -1  # Remove the trivial (empty) case
     hand = [0 for _ in range(N)]  # Empty hand, no hand score
     fifteen = [1 if i==0 else 0 for i in range(16)]
-    equal_scores += recursion_928(hand, N, 0, fifteen)
+    equal_scores += recursion_928(hand, N, 0, fifteen, 0)
     print(equal_scores)
     return equal_scores
 
-def wip_problem_928_b(N=13):
-    """
-    Find the number of Hands in a normal pack of cards where the Hand score is equal to the Cribbage score.
-    Hand score: Sum of card values (Ace=1, J,Q,K = 10)
-    Cribbage score: Pairs (2), Runs (Length), 15s (2)
-    Works But is too slow (25 min)
-    """
-    # Total number of hands (5^13, 0-4 of each card)
-    def recursion_928(hand, highest, hand_score):
-        # Calculate the crib total
-        def cribbage_score(hand):
-            score = 0
-            run_score = 1
-            run_len = 0
-            fifteen = [0 for _ in range(16)]  # Dynamic programming array, count ways to sum to _
-            # Count fifeens
-            for card in range(len(hand)):
-                card_val = min(card + 1, 10)
-                for i in range(len(fifteen)+1, -1, -1):
-                    count = 1
-                    combo = hand[card]
-                    while count <= hand[card] and card_val*count + i <= 15:
-                        combo = comb(hand[card], count)
-                        if i == 0:
-                            fifteen[(count * card_val) + i] += combo
-                        else:
-                            fifteen[(count * card_val) + i] += combo * fifteen[i]
-                        count += 1
-                # Count pairs
-                if hand[card] >= 2:
-                    score += comb(hand[card], 2) * 2
-                # Count runs
-                if hand[card] >= 1:
-                    run_score *= hand[card]
-                    run_len += 1
-                if hand[card] == 0 or card == N-1:
-                    if run_len >= 3:
-                        score += run_score * run_len
-                    run_len = 0
-                    run_score = 1
-            score += 2 * fifteen[-1]
-            return score
-        
-        equal_scores = 0
-        cribbage_score = cribbage_score(hand)
-        # Check for equality, calculate possible suite combinations
-        if hand_score == cribbage_score:
-            # print(hand, hand_score)
-            possible_suites = 1
-            for card in hand:
-                possible_suites *= comb(4, card)
-            equal_scores += possible_suites
-        elif cribbage_score > 220 or cribbage_score > hand_score + 50:
-            # Condition to stop adding cards, triggers when
-            # - Cribbage_score exceeds max hand_score (340), but all 220
-            # - Crib is significantly larger than hand_score  
-            #   (Max possible to add without increasing the crib [2, 4, 6, 8, 10, Q, K] = 50)
-            return equal_scores
-        # Add another card to the hand
-        for i in range(highest):
-            if hand[i] < 4:
-                new_hand = [_ for _ in hand]
-                new_hand[i] += 1
-                equal_scores += recursion_928(new_hand, i+1, hand_score + min(i+1, 10))
-        return equal_scores
 
-    equal_scores = -1  # Remove the trivial (empty) case
-    hand = [0 for _ in range(N)]  # Empty hand, no hand score
-    equal_scores += recursion_928(hand, N, 0)
-    print(equal_scores)
-    return equal_scores
-
-# wip_problem_928_b(8)

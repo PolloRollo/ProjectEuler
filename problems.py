@@ -1229,7 +1229,7 @@ def problem_060(n=5):
     return least_sum
 
 
-def wip_problem_061(N=6):
+def problem_061(N=6):
     """
     Find a cycle of N 4-digit shaped numbers.
     e.g 8128 (triangular), 2882 (pentagonal), 8281 (square)
@@ -1286,6 +1286,27 @@ def wip_problem_061(N=6):
             if total > 0:
                 solution = (total*100) + total  # First and last digits are the same
                 return solution
+
+
+def problem_062(N=5):
+    """
+    Find the smallest cube for which exactly N permutations of its digits are cube.
+    """
+    # Make a list of each cube matching every specific permuation
+    cube_dict = {}  # Ordered numbering: [List of cubes]
+    i = 1
+    # Go until N matches are made
+    while True:
+        cube = i**3
+        sorted_cube = "".join(sorted(str(cube)))  # Unique key for permutation
+        if sorted_cube in cube_dict:
+            cube_dict[sorted_cube].append(i)
+            if len(cube_dict[sorted_cube]) == N:  # Stopping condition
+                result = cube_dict[sorted_cube]
+                return min(result)**3  # Return the smallest cube
+        else:
+            cube_dict[sorted_cube] = [i]  # Initialize list for permutation
+        i += 1
 
 
 def problem_063():

@@ -31,8 +31,8 @@ def main():
 
 
 def time_test():
-    for problem in [problems.problem_062]:
-        N=5
+    for problem in [problems.problem_066]:
+        N=1000
         t = time.process_time()
         problem(N)
         time_elapsed = time.process_time() - t

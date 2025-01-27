@@ -1367,6 +1367,45 @@ def problem_065(n=100):
     return sum([int(i) for i in str(numerator)])
 
 
+def problem_066(N=1000):
+    """
+    Let x^2 - D * y^2 = 1 be our Diophantine equation. Find minimal solutions in x for D <= N (D not square).
+    What is the largest such minimal solution?
+    """
+    # Searching for minimal x is too hard (e.g. D=61 -> x = 1766319049). 
+    # Use methods for Pell's equation instead. https://en.wikipedia.org/wiki/Pell%27s_equation#Example
+    squares = {i*i for i in range(1, floor(sqrt(N+1)+1))}
+    minimal_solution = 0
+    maximal_D = 0
+    for D in range(2, N+1):
+        if D in squares:
+            continue
+        whole = floor(sqrt(D))
+        cont_frac = []
+        m = 0
+        d = 1
+        a = whole
+        while a != 2*whole:  # https://en.wikipedia.org/wiki/Periodic_continued_fraction#Canonical_form_and_repetend
+            m = d*a - m
+            d = (D - m**2) // d
+            a = floor((sqrt(D) + m) // d)
+            cont_frac.append(a)
+        sequence = [whole]
+        if len(cont_frac) % 2 == 1: # Odd case
+            sequence.extend(cont_frac)
+        sequence.extend(cont_frac)
+        # Find convergent which solves Pell's equation.
+        convergent_num = sequence[-2]
+        convergent_den = 1
+        for val in range(len(sequence)-3, -1, -1):
+            convergent_den, convergent_num  = convergent_num, convergent_num * sequence[val] + convergent_den
+        # If the convergent is larger than any previous, save new maximal D value
+        if convergent_num > minimal_solution:
+            minimal_solution = convergent_num
+            maximal_D = D
+    return maximal_D
+
+
 def problem_067():
     """
     Find the maximum total from top to bottom of the triangle below

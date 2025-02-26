@@ -31,12 +31,12 @@ def main():
 
 
 def time_test():
-    for problem in [problems.problem_066]:
-        N=1000
-        t = time.process_time()
-        problem(N)
-        time_elapsed = time.process_time() - t
-        print(N, time_elapsed)
+    for problem in [problems.problem_932]:
+        for N in range(2, 17, 2):
+            t = time.process_time()
+            problem(N)
+            time_elapsed = time.process_time() - t
+            print(N, time_elapsed)
 
 # main()
 time_test()

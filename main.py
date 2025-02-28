@@ -31,12 +31,12 @@ def main():
 
 
 def time_test():
-    for problem in [problems.wip_problem_078]:
+    for problem in [problems.problem_073]:
         t = time.process_time()
-        N=0
-        problem()
+        N=10
+        solution = problem()
         time_elapsed = time.process_time() - t
-        print(N, time_elapsed)
+        print(N, solution, time_elapsed)
 
 # main()
 time_test()

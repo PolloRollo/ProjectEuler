@@ -1442,6 +1442,24 @@ def problem_069(n=10**6):
     return num
 
 
+def problem_073(d=12000):
+    """
+    How many reduced fraction with denominator <= d lie between 1/3 and 1/2
+    """
+    # Generate Stern-Brocot tree
+    b = [3, 2]
+    length = 1
+    i = 0
+    while i < length:
+        c = b[i] + b[i+1]
+        if b[i] + b[i+1] <= d:
+            b.insert(i+1, c)
+            length += 1
+        else:
+            i += 1
+    return length-1 # Subtract the ends
+
+
 def problem_075(n=1500000):
     """
     Given that L is the length of the wire, for how many values of
@@ -1469,19 +1487,18 @@ def problem_075(n=1500000):
     return unique_count
 
 
-def wip_problem_078(D=10**6):
+def problem_078(D=10**6):
     """
     Find the first partition, p(n), which is divisible by D.
     """
-    # Initialize Euler's difference formula for permutations
-    a = 1
-    b = 1
+    # Initialize Euler's difference formula for permutations 
+    # https://en.wikipedia.org/wiki/Partition_function_(number_theory)#Generating_function
+    a, b = 1, 1
     partition_difs = [1, 2]
     # Calculate partition of n
     partitions = [1]
-    found = False
-    n = 1   
-    while not found:
+    val, n = 1, 1
+    while val % D != 0:
         val = 0
         d = 0
         # Extend partition difference list
@@ -1499,11 +1516,6 @@ def wip_problem_078(D=10**6):
                 val -= partitions[n-dif]
             d += 1
             dif = partition_difs[d]
-        # If solution
-        if val % D == 0:
-            found = True
-            print("Answer", n)
-            break
         # Store truncated values
         partitions.append(val % D)
         n += 1

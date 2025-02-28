@@ -1469,6 +1469,47 @@ def problem_075(n=1500000):
     return unique_count
 
 
+def wip_problem_078(D=10**6):
+    """
+    Find the first partition, p(n), which is divisible by D.
+    """
+    # Initialize Euler's difference formula for permutations
+    a = 1
+    b = 1
+    partition_difs = [1, 2]
+    # Calculate partition of n
+    partitions = [1]
+    found = False
+    n = 1   
+    while not found:
+        val = 0
+        d = 0
+        # Extend partition difference list
+        if n >= partition_difs[-1]:
+            a += 2
+            b += 1
+            partition_difs.append(partition_difs[-1] + a)
+            partition_difs.append(partition_difs[-1] + b)
+        # Use Euler's difference formula
+        dif = partition_difs[d]
+        while dif <= n: # Addition case, 0, 1, mod 4
+            if (d//2) % 2 == 0:
+                val += partitions[n-dif]
+            else:  # Subtraction case 2, 3 mod 4
+                val -= partitions[n-dif]
+            d += 1
+            dif = partition_difs[d]
+        # If solution
+        if val % D == 0:
+            found = True
+            print("Answer", n)
+            break
+        # Store truncated values
+        partitions.append(val % D)
+        n += 1
+    return n
+
+
 def problem_081():
     """
     Find the minimal path sum from the top left to the bottom right by only moving right and down

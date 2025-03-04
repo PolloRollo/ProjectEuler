@@ -1,4 +1,4 @@
-from math import sqrt, floor, ceil
+from math import sqrt, floor, ceil, gcd
 from time import time
 import random
 
@@ -21,7 +21,38 @@ def EuclideanAlg(a, b):
         return a
     else:
         return EuclideanAlg(b, a % b)
+    
 
+def ChineseRemainderTheorem(r1, m1, r2, m2):
+    """
+    Solves for the smallest number satisfying x % m1 == r1 and x % m2 == r2
+    """
+    # Solve extended Euclidean algorithem
+    d = gcd(m1, m2)
+    if (r2 - r1) % d != 0:
+        return None  # No solution exists
+    
+    # Compute the least common multiple
+    lcm = m1 // d * m2
+    
+    # Reduce the problem to coprime moduli
+    m = m1 // d
+    n = m2 // d
+    c = (r2 - r1) // d
+    
+    # Find the modular inverse of m modulo n
+    inv = pow(m, -1, n)
+    
+    # Compute the solution
+    k = (c * inv) % n
+    x = r1 + k * m1
+    
+    # Return the minimal positive solution
+    return x % lcm
+
+# print(ChineseRemainderTheorem(0, 210, 7, 11))
+# print(ChineseRemainderTheorem(1470, 2310, 7, 13))
+# print(ChineseRemainderTheorem(0, 2310, 7, 13))
 
 def timeTest(f, n):
     start = time()

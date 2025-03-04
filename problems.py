@@ -1,12 +1,10 @@
 # Project Euler Code
-from extraFunctions import primeSieve, EuclideanAlg, timeTest, isPalindrome, divisor_count, is_prime, is_pandigital
+from helperFunctions import primeSieve, EuclideanAlg, timeTest, isPalindrome, divisor_count, is_prime, is_pandigital, ChineseRemainderTheorem
 from math import log, ceil, comb, factorial, sqrt, floor, gcd
-import numpy as np
+# import numpy as np
 from gmpy2 import mpz
 import networkx as nx
 import itertools
-import os
-import time
 
 
 def problem_001(n=1000):
@@ -2291,5 +2289,78 @@ def problem_932(N=16):
     print(total)
     return total
 
+
+def wip_problem_934(N=10**17):
+    """
+    Sum the first N unlucky primes. An unlucky prime is the first prime such that n % p != 7*m
+    U(1470) = 4293
+    """
+    # Currenly giving lower bound. 
+    # Follows a 1, 2, 1, 4, 1, 2, 1, 8... like series
+    # 2, 3, 2, 3, 2, 5, 2, 3, 2, 3, 2, 5, 
+    # If i % 2 == 1 -> 2
+    # If i % 2 == 0 -> 3
+    # If i % 6 == 0 -> 5
+    # If i % 30 == 0 -> 7...
+
+    # Find all primorials <= n
+    upper_bound = ceil(log(N))**2 # This is the length of the primes
+    primes = primeSieve(upper_bound)
+    primorials = [2]
+    prime_gaps = [2]
+    remainders = [[0]]  # Chinese Remainder Theorem, NOTE: Index off-by-one
+    crt_counts = [0]
+    primorial = 2
+    count = 3
+    U = 2*N
+    for i in range(1, len(primes)-1):
+        if count == 0:
+            break
+        # Append the next primorial and prime gap
+        primorials.append(primorial)
+        prime_gaps.append(primes[i] - primes[i-1])
+        # Calculate the mod p remainders divisible by 7
+        seven = 0
+        modulo = []
+        modulo_counts = 1
+        while seven < primes[i]:
+            for r in remainders[-1]:
+                crt = ChineseRemainderTheorem(r, primorial, seven, primes[i])
+                modulo.append(crt)  # Chinese remainder theorem
+            seven += 7
+        remainders.append(modulo)
+        crt_counts.append(crt_counts[-1]* ((primes[i]+6)//7))
+        # Update primorial
+        if primorial > N: # Break condition if primorial is too large
+            count -= 1
+        primorial *= primes[i]
+        U += prime_gaps[i] * len(remainders[i]) * (N // primorials[i])
+        extra = N % primorials[i]
+        for r in remainders[i]:
+            if r != 0 and extra >= r:
+                U += prime_gaps[i]
+            elif extra < r:
+                break
+    print("Primorials:", len(primorials))
+    return U
+
+
+def wip_problem_934_a(N=1470):
+    primes = primeSieve(1000)
+    unlucky_count = {p:0 for p in primes}
+    U = 0
+    for i in range(1, N+1):
+        for prime in primes:
+            x = i % prime
+            if x % 7 != 0:
+                U += prime
+                unlucky_count[prime] += 1
+                break
+    # for p, c in unlucky_count.items():
+        # print(p, c)
+    return U
+
+
 # problem_932_a(8)
 # problem_932(8)
+# print(wip_problem_934(10**17))

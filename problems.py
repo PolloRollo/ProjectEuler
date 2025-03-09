@@ -1605,17 +1605,17 @@ def problem_091(N=50):
     """
     # Number of right triangles where right angle on axes
     triangles = 3 * N**2  
+    # Count all right triangles where right angle not on axes
+    # Only iterate on p, since right angle limits where q could be.
     for i in range(0, N**2):
         x = 1 + (i%N)
         y = 1 + (i//N)
         common = gcd(x, y)
-        # Count all right triangles where right angle not on axes
-        if y != x:
-            new_x = x//common
-            new_y = y//common
-            triangles += 2 * min((N-x)//new_y, y//new_x)
-        elif y == x:
-            triangles += 2 * min(common, N - common)
+        # Find smallest step to take along right-angled path
+        new_x = x//common
+        new_y = y//common
+        # Count points right angle away. Double for reflection
+        triangles += 2 * min((N-x)//new_y, y//new_x)
     # Current runtime is ~0.6 ms
     return triangles
 

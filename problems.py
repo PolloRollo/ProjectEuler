@@ -121,7 +121,7 @@ def problem_007(n=10001):
 
 def problem_008(n=13):
     """
-Find the n adjacent digits in the 1000-digit number that have the greatest product. What is the value of this product?
+    Find the n adjacent digits in the 1000-digit number that have the greatest product. What is the value of this product?
     """
     filename = "data/0008_number.txt"
     s = ""
@@ -606,7 +606,7 @@ def problem_033(n=2):
     total_gcd = gcd(total_numer, total_denom)
     total_numer = total_numer // total_gcd
     total_denom = total_denom // total_gcd
-    return total_numer, total_denom
+    return total_denom
 
 
 def problem_034():
@@ -1055,7 +1055,6 @@ def problem_054():
         # Helper function to determine "value" of each hand
         p1_score = poker_hand(p1)
         p2_score = poker_hand(p2)
-        print(p1_score, p2_score)
         # Compare results from each hand
         if p1_score > p2_score:
             p1_wins += 1
@@ -1898,6 +1897,20 @@ def problem_121(n=15):
     The player wins if they have taken more blue discs than red discs at the end of the game.
     Find the maximum prize fund that should be allocated to a single game in which fifteen turns are played.
     """
+    def recursion_121(max_balls, balls, blue_count, numerator):
+        if balls > max_balls + 1:  # Too many trials, loss
+            return 0
+        if blue_count >= ceil(max_balls/2):  # Majority blue, win
+            probability = numerator * factorial(max_balls) // factorial(balls - 1)
+            return probability
+        if balls - blue_count > ceil((max_balls + 1)/2):  # Majority red, discard
+            return 0
+        # Another draw, add red ball
+        probability = recursion_121(max_balls, balls+1, blue_count+1, numerator)  # Draw blue
+        probability += recursion_121(max_balls, balls+1, blue_count, numerator * (balls-1))  # Draw red
+        return probability
+    
+    # Initialize problem
     initial_balls = 2
     trials = n
     denominator = factorial(n+1)
@@ -1905,20 +1918,6 @@ def problem_121(n=15):
 
     prize = (denominator // prob)
     return prize
-
-
-def recursion_121(max_balls, balls, blue_count, numerator):
-    if balls > max_balls + 1:  # Too many trials, loss
-        return 0
-    if blue_count >= ceil(max_balls/2):  # Majority blue, win
-        probability = numerator * factorial(max_balls) // factorial(balls - 1)
-        return probability
-    if balls - blue_count > ceil((max_balls + 1)/2):  # Majority red, discard
-        return 0
-    # Another draw, add red ball
-    probability = recursion_121(max_balls, balls+1, blue_count+1, numerator)  # Draw blue
-    probability += recursion_121(max_balls, balls+1, blue_count, numerator * (balls-1))  # Draw red
-    return probability
 
 
 def problem_169(n=10**25):
@@ -2316,43 +2315,33 @@ def problem_932(N=16):
             if square // mod_2 == a and a > 0:
                 total += square
                 continue
-    print(total)
     return total
 
 
-def wip_problem_934(N=10**17):
+def problem_934(N=10**17):
     """
     Sum the first N unlucky primes. An unlucky prime is the first prime such that n % p != 7*m.
-    U(1470) = 4293
     """
     upper_prime = ceil(log(N))**2 # This slightly exceeds the largest prime needed
     primes = primeSieve(upper_prime)
-    # This is a magic number to avoid higher-order remainders impacting the results
-    # eg. 1470 mod 2310 requires us testing primorials past N if 1470 < N < 2310.
-    count = 20
     # Initialize values
     primorial = 2
     prev_remainder = [0]
     len_remainder = 1
-    # Every n have an unlucky prime at least 2. 
+    # Every n has an unlucky prime at least 2. 
     U = 2*N
     for i in range(1, len(primes)-1):
-        # Break condition if primorial is too large
-        if count <= 0:
+        # Break condition when there are no higher-order remainders remaining
+        if i > 4 and len(prev_remainder) == 1:
             break
-        if primorial > N: 
-            count -= 1
         # We've already added up to p_{i-1}, so just update with next prime gap.
         prime_gap = primes[i] - primes[i-1]
-        # How many values are at least p_i unlucky?
+        # Update for all values that are at least p_i unlucky
         U += prime_gap * len_remainder * (N // primorial)
-        # The tough part
         extra = N % primorial
         remainder = set()
-        # Every previous remainder can pair with 7*k mod p to create new remainders
-        for r in prev_remainder:
-            # Count the values that fall between a primorial and N
-            if r != 0 and extra >= r:
+        for r in prev_remainder:  # Every previous remainder can pair with 7*k mod p to create new remainders
+            if r != 0 and extra >= r:  # Update for values that fall between a primorial and N
                 U += prime_gap
             # Determine what is in the next set of remainders
             a = r % primes[i]
@@ -2367,22 +2356,7 @@ def wip_problem_934(N=10**17):
         # How many values are at least p_i unlucky?
         len_remainder *= 1 + (primes[i]-1)//7
         # Update primorial
-        primorial *= primes[i]
+        primorial *= primes[i]  
     return U
 
 
-def wip_problem_934_a(N=1470):
-    primes = primeSieve(1000)
-    U = 0
-    for i in range(1, N+1):
-        for prime in primes:
-            x = i % prime
-            if x % 7 != 0:
-                U += prime
-                break
-    return U
-
-
-# problem_932_a(8)
-# problem_932(8)
-# print(wip_problem_934(10**17))

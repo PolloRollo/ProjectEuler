@@ -12,6 +12,7 @@ def main():
     file = "log.txt"
     log = ""
     T = time.process_time()
+    completed = 0
     for name, function in functions.items():
         t = time.process_time()
         answer = function()
@@ -19,28 +20,29 @@ def main():
         text = f"{name}\n\t Time: {time_elapsed}\n\t Answer: {answer}\n"
         log += text
         print(text)
+        completed += 1
     total_time_elapsed = time.process_time() - T
-    text = f"Total time: {total_time_elapsed}"
+    text = f"Total time: {total_time_elapsed}\n"
+    text += f"Total complete: {completed}"
     log += text
     print(text)
 
     # Record results
-    f = os.open(file, os.O_WRONLY)
+    f = os.open(file, os.O_WRONLY | os.O_CREAT)
     os.write(f, log.encode())
     os.close(f)
 
 
 def time_test():
     # for problem in [problems.wip_problem_934_a, problems.wip_problem_934]:
-    for problem in [problems.wip_problem_934]:
+    for problem in [problems.problem_932]:
         t = time.process_time()
-        # N = [i for i in range(1, 15, 2)]
-        N = [i for i in range(1,18)]
+        N = [i for i in range(1,16)]
         for n in N:
-            solution = problem(10**n)
+            solution = problem(n)
             time_elapsed = time.process_time() - t
             print(n, solution, time_elapsed)
 
-# main()
-time_test()
+main()
+# time_test()
 

@@ -34,7 +34,8 @@ def time_test():
     # for problem in [problems.wip_problem_934_a, problems.wip_problem_934]:
     for problem in [problems.wip_problem_934]:
         t = time.process_time()
-        N = [i for i in range(1, 14, 2)]
+        # N = [i for i in range(1, 15, 2)]
+        N = [i for i in range(1,18)]
         for n in N:
             solution = problem(10**n)
             time_elapsed = time.process_time() - t

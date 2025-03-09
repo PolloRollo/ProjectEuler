@@ -1603,20 +1603,20 @@ def problem_091(N=50):
     """
     How many right triangles can be placed on an integer lattice (0, N)^2 with one vertex at the origin.
     """
-    # Use the dot product to find right triangles
-    Z = N + 1
-    triangles = 0
-    for i in range(1, Z**2):
-        p = np.array([i//Z, i % Z])
-        for j in range(i+1, Z**2):
-            q = np.array([j//Z, j % Z])
-            if np.dot(p, q) == 0:
-                triangles += 1
-            elif np.dot(p-q, q) == 0:
-                triangles += 1
-            elif np.dot(q-p, p) == 0:
-                triangles += 1
-    # Current runtime is 12.5 seconds
+    # Number of right triangles where right angle on axes
+    triangles = 3 * N**2  
+    for i in range(0, N**2):
+        x = 1 + (i%N)
+        y = 1 + (i//N)
+        common = gcd(x, y)
+        # Count all right triangles where right angle not on axes
+        if y != x:
+            new_x = x//common
+            new_y = y//common
+            triangles += 2 * min((N-x)//new_y, y//new_x)
+        elif y == x:
+            triangles += 2 * min(common, N - common)
+    # Current runtime is ~0.6 ms
     return triangles
 
 

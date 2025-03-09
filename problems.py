@@ -1,7 +1,7 @@
 # Project Euler Code
 from helperFunctions import primeSieve, EuclideanAlg, timeTest, isPalindrome, divisor_count, is_prime, is_pandigital, ChineseRemainderTheorem
 from math import log, ceil, comb, factorial, sqrt, floor, gcd
-# import numpy as np
+import numpy as np
 from gmpy2 import mpz
 import networkx as nx
 import itertools
@@ -1597,6 +1597,27 @@ def problem_089():
         elif "CCCC" in roman:
             chars_removed += 2
     return chars_removed
+
+
+def problem_091(N=50):
+    """
+    How many right triangles can be placed on an integer lattice (0, N)^2 with one vertex at the origin.
+    """
+    # Use the dot product to find right triangles
+    Z = N + 1
+    triangles = 0
+    for i in range(1, Z**2):
+        p = np.array([i//Z, i % Z])
+        for j in range(i+1, Z**2):
+            q = np.array([j//Z, j % Z])
+            if np.dot(p, q) == 0:
+                triangles += 1
+            elif np.dot(p-q, q) == 0:
+                triangles += 1
+            elif np.dot(q-p, p) == 0:
+                triangles += 1
+    # Current runtime is 12.5 seconds
+    return triangles
 
 
 def problem_092(n=10**7):
